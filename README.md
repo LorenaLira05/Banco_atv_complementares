@@ -1,178 +1,127 @@
-# 🎓 Sistema de Gestão de Atividades Complementares 
+# Banco de Dados — Sistema de Atividades Complementares SENAC
 
-Banco de dados PostgreSQL desenvolvido para gerenciar o processo de submissão, validação e acompanhamento de atividades complementares acadêmicas.
-
-O sistema controla alunos, coordenadores, cursos, regras por categoria, horas aprovadas, notificações e auditoria, garantindo integridade, rastreabilidade e organização institucional.
+Este repositório contém os scripts SQL do banco de dados do sistema de gestão de atividades complementares.
 
 ---
 
-## Objetivo
+## Pré-requisitos
 
-Este banco de dados foi projetado para:
+- [PostgreSQL 14+](https://www.postgresql.org/download/)
+- [pgAdmin](https://www.pgadmin.org/) 
+---
 
-- Gerenciar usuários com múltiplos papéis (aluno, coordenador, administrador);
-- Controlar cursos e carga horária mínima obrigatória;
-- Permitir submissão de atividades complementares com anexos;
-- Validar atividades e registrar horas aprovadas;
-- Aplicar regras específicas por curso e categoria;
-- Registrar notificações automáticas;
-- Manter logs de auditoria para rastreabilidade;
-- Fornecer views analíticas para dashboards e relatórios.
+## 🚀 Como configurar o banco do zero
+
+### 1. Crie o banco de dados
+
+Dentro do psql:
+```sql
+CREATE DATABASE atividades_complementares_senac;
+
+```
 
 ---
 
-## Estrutura do Banco de Dados
+### 2. Execute os scripts na ordem correta
 
-### 👤 Usuários e Permissões
+> ⚠️ A ordem importa! Execute um por vez e verifique se não houve erros antes de continuar.
 
-- `users`
-- `roles`
-- `user_roles`
-- `student_profiles`
-- `coordinator_profiles`
-
-Permite controle de acesso baseado em papéis (RBAC) e separação entre identidade e perfil acadêmico.
+#### Via pgAdmin:
+1. Conecte ao banco `senac_atividades`
+2. Abra cada arquivo `.sql` no Query Tool
+3. Execute na ordem: `script_principal.sql` → `triggers.sql` → `seed.sql`
 
 ---
 
-### Cursos e Regras
+## Estrutura dos arquivos
 
-- `courses`
-- `categories`
-- `course_activity_rules`
-- `user_courses`
-- `course_coordinators`
-
-Define:
-
-- Carga horária mínima obrigatória por curso
-- Regras específicas por categoria
-- Vínculo aluno × curso
-- Vínculo coordenador × curso
+```
+/
+├── script_principal.sql   # Criação das tabelas, enums, índices e views
+├── triggers.sql           # Triggers de integridade e automação
+├── seed.sql               # Dados de exemplo para desenvolvimento
+└── README.md              # Este arquivo
+```
 
 ---
 
-### Submissões e Validações
+## Usuários disponíveis após o seed
 
-- `submissions`
-- `submission_files`
-- `validations`
+Todos os usuários têm senha padrão: **`123456`**
 
-Funcionalidades:
-
-- Registro de atividade complementar
-- Upload de certificados
-- Controle de horas solicitadas e aprovadas
-- Histórico completo de validações
-
----
-
-### Notificações e Auditoria
-
-- `notifications`
-- `audit_logs`
-
-Permite:
-
-- Comunicação com usuários
-- Registro de ações realizadas no sistema
-- Rastreabilidade de alterações
+| Perfil | E-mail | Curso |
+|---|---|---|
+| Super Admin | admin@senac.com | — |
+| Coordenador | ricardo@senac.com | ADS |
+| Coordenador | helena@senac.com | Design Gráfico |
+| Aluno | lucas@aluno.senac.com | ADS (ativo) |
+| Aluno | ana@aluno.senac.com | ADS (ativo) |
+| Aluno | mateus@aluno.senac.com | ADS (trancado) |
+| Aluno | julia@aluno.senac.com | Design (ativo) |
+| Aluno | pedro@aluno.senac.com | Design (pendente financeiro) |
 
 ---
 
-## Views Criadas
+## Visão geral das tabelas
 
-### `vw_submission_overview`
-
-Exibe visão consolidada das submissões contendo:
-
-- Nome do aluno
-- Curso
-- Categoria
-- Horas solicitadas
-- Horas aprovadas
-- Status atual
-
-Ideal para dashboards administrativos.
-
----
-
-### `vw_student_progress`
-
-Calcula:
-
-- Total de horas aprovadas por aluno
-- Percentual de progresso em relação à carga mínima do curso
-
-Ideal para painel do aluno e acompanhamento acadêmico.
+| Tabela | Descrição |
+|---|---|
+| `users` | Dados pessoais e autenticação de todos os usuários |
+| `roles` | Papéis do sistema: `super_admin`, `coordinator`, `student` |
+| `user_roles` | Vínculo entre usuário e papel |
+| `courses` | Cursos cadastrados na instituição |
+| `student_profiles` | Dados específicos do aluno (RA) |
+| `coordinator_profiles` | Dados específicos do coordenador (departamento, cargo, etc.) |
+| `user_courses` | Vínculo entre aluno e curso + status de matrícula |
+| `course_coordinators` | Vínculo entre coordenador e curso (1 coordenador por curso) |
+| `categories` | Tipos de atividades complementares |
+| `course_activity_rules` | Regras de horas por categoria para cada curso |
+| `submissions` | Submissões de atividades feitas pelos alunos |
+| `submission_files` | Arquivos/comprovantes das submissões |
+| `validations` | Histórico de validações feitas pelos coordenadores |
+| `notifications` | Notificações enviadas aos usuários |
+| `audit_logs` | Log de auditoria de todas as ações do sistema |
 
 ---
 
-## Regras de Negócio
+## Triggers
 
-O banco aplica regras por meio de:
-
-- ENUMs para controle de status
-- Constraints de integridade referencial (FOREIGN KEY)
-- Unique constraints para evitar duplicidades
-- Índices estratégicos para performance
-- Normalização até 3FN
-
-Exemplos:
-
-- Um usuário pode ter múltiplos papéis
-- Cada curso possui regras específicas por categoria
-- Uma submissão pode ter múltiplos arquivos
-- Cada validação mantém histórico de decisão
+| Trigger | Tabela | O que faz |
+|---|---|---|
+| `trg_*_updated_at` | Várias | Atualiza `updated_at` automaticamente a cada UPDATE |
+| `trg_prevent_editing_closed` | `submissions` | Impede edição de submissões já aprovadas ou reprovadas |
 
 ---
 
-## DER (Diagrama Entidade-Relacionamento)
+## Configuração no back-end
 
-O diagrama ER foi modelado utilizando Mermaid e representa:
+No arquivo `.env` do projeto back-end, configure as variáveis de conexão:
 
-- Estrutura relacional completa
-- Cardinalidades
-- Integridade referencial
-- Organização modular do sistema
-
----
-
-## Tecnologias Utilizadas
-
-- PostgreSQL
-- Mermaid (Diagrama ER)
-- Git & GitHub
+```env
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=senac_atividades
+DB_USER=postgres
+DB_PASS=sua_senha
+```
 
 ---
 
-## Segurança e Integridade
+## ❓ Problemas comuns
 
-- Controle de status via ENUM
-- Integridade referencial com ON DELETE apropriado
-- Índices para otimização de consultas
-- Registro de auditoria
-- Armazenamento seguro de senha com hash
+**Erro: `role "postgres" does not exist`**
+Troque `postgres` pelo seu usuário do PostgreSQL local.
 
----
+**Erro: `database "senac_atividades" does not exist`**
+Rode o passo 1 (criação do banco) antes de executar os scripts.
 
-## Finalidade
+**Erro: `already exists` em alguma tabela**
+O banco já foi criado antes. O `script_principal.sql` tem `DROP TABLE IF EXISTS` no início — pode rodar novamente sem problema, mas **todos os dados serão apagados**.
 
-Projeto acadêmico desenvolvido para demonstrar:
-
-- Modelagem relacional avançada
-- Estrutura de sistema institucional real
-- Controle de permissões baseado em papéis
-- Organização profissional de banco de dados
-
----
-
-## Possíveis Evoluções
-- Procedures para consolidação de horas
-- Dashboard analítico com BI
-- Integração com sistema acadêmico externo
-- Controle automático de encerramento de curso
-
----
-
-🪴 Projeto de uso acadêmico. Livre para estudo e adaptação com os devidos créditos.
+**Senha do seed não funciona no back-end**
+O hash no `seed.sql` é um exemplo. Se não funcionar, gere um novo hash rodando no terminal do projeto back-end:
+```javascript
+const bcrypt = require('bcryptjs');
+bcrypt.hash('123456', 10).then(console.log);
+```
+Substitua o hash no `seed.sql` pelo valor gerado e rode novamente.
