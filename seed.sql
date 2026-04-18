@@ -77,16 +77,16 @@ WHERE c.code = 'DSG' AND cat.name = 'Curso Livre';
 
 INSERT INTO users (full_name, email, password_hash, phone, cpf) VALUES
 -- Super Admin
-('Super Admin',         'admin@senac.com',       '$2a$10$7QJ8v3z1XkLmN9pQrS5tOeWvYuIoKjHgFdSaZxCvBnMqWeLrTyUpI', NULL,           NULL),
+('Super Admin',         'admin@senac.com',       '$2b$10$UVRG/QtCaZeN/H.jXheEzenXMdZmHlUMRU.yxIZMUVqpXoa2tgCJi', NULL,           NULL),
 -- Coordenadores
-('Ricardo Oliveira',    'ricardo@senac.com',      '$2a$10$7QJ8v3z1XkLmN9pQrS5tOeWvYuIoKjHgFdSaZxCvBnMqWeLrTyUpI', '(11)99999-0001', '111.111.111-01'),
-('Helena Souza',        'helena@senac.com',       '$2a$10$7QJ8v3z1XkLmN9pQrS5tOeWvYuIoKjHgFdSaZxCvBnMqWeLrTyUpI', '(11)99999-0002', '111.111.111-02'),
+('Ricardo Oliveira',    'ricardo@senac.com',      '$2b$10$UVRG/QtCaZeN/H.jXheEzenXMdZmHlUMRU.yxIZMUVqpXoa2tgCJi', '(11)99999-0001', '111.111.111-01'),
+('Helena Souza',        'helena@senac.com',       '$2b$10$UVRG/QtCaZeN/H.jXheEzenXMdZmHlUMRU.yxIZMUVqpXoa2tgCJi', '(11)99999-0002', '111.111.111-02'),
 -- Alunos
-('Lucas Oliveira',      'lucas@aluno.senac.com',  '$2a$10$7QJ8v3z1XkLmN9pQrS5tOeWvYuIoKjHgFdSaZxCvBnMqWeLrTyUpI', '(11)99999-0003', '222.222.222-01'),
-('Ana Clara Mendes',    'ana@aluno.senac.com',    '$2a$10$7QJ8v3z1XkLmN9pQrS5tOeWvYuIoKjHgFdSaZxCvBnMqWeLrTyUpI', '(11)99999-0004', '222.222.222-02'),
-('Mateus Ferreira',     'mateus@aluno.senac.com', '$2a$10$7QJ8v3z1XkLmN9pQrS5tOeWvYuIoKjHgFdSaZxCvBnMqWeLrTyUpI', '(11)99999-0005', '222.222.222-03'),
-('Julia Santos',        'julia@aluno.senac.com',  '$2a$10$7QJ8v3z1XkLmN9pQrS5tOeWvYuIoKjHgFdSaZxCvBnMqWeLrTyUpI', '(11)99999-0006', '222.222.222-04'),
-('Pedro Alves',         'pedro@aluno.senac.com',  '$2a$10$7QJ8v3z1XkLmN9pQrS5tOeWvYuIoKjHgFdSaZxCvBnMqWeLrTyUpI', '(11)99999-0007', '222.222.222-05');
+('Lucas Oliveira',      'lucas@aluno.senac.com',  '$2b$10$UVRG/QtCaZeN/H.jXheEzenXMdZmHlUMRU.yxIZMUVqpXoa2tgCJi', '(11)99999-0003', '222.222.222-01'),
+('Ana Clara Mendes',    'ana@aluno.senac.com',    '$2b$10$UVRG/QtCaZeN/H.jXheEzenXMdZmHlUMRU.yxIZMUVqpXoa2tgCJi', '(11)99999-0004', '222.222.222-02'),
+('Mateus Ferreira',     'mateus@aluno.senac.com', '$2b$10$UVRG/QtCaZeN/H.jXheEzenXMdZmHlUMRU.yxIZMUVqpXoa2tgCJi', '(11)99999-0005', '222.222.222-03'),
+('Julia Santos',        'julia@aluno.senac.com',  '$2b$10$UVRG/QtCaZeN/H.jXheEzenXMdZmHlUMRU.yxIZMUVqpXoa2tgCJi', '(11)99999-0006', '222.222.222-04'),
+('Pedro Alves',         'pedro@aluno.senac.com',  '$2b$10$UVRG/QtCaZeN/H.jXheEzenXMdZmHlUMRU.yxIZMUVqpXoa2tgCJi', '(11)99999-0007', '222.222.222-05');
 
 
 INSERT INTO user_roles (user_id, role_id)
