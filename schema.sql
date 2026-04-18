@@ -410,3 +410,6 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER trg_prevent_editing_closed
     BEFORE UPDATE ON submissions
     FOR EACH ROW EXECUTE FUNCTION prevent_editing_closed_submission();
+
+ALTER TABLE course_coordinators 
+ADD CONSTRAINT uq_course_one_coordinator UNIQUE (course_id);
