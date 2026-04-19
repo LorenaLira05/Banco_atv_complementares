@@ -29,7 +29,7 @@ CREATE DATABASE atividades_complementares_senac;
 #### Via pgAdmin:
 1. Conecte ao banco `senac_atividades`
 2. Abra cada arquivo `.sql` no Query Tool
-3. Execute na ordem: `script_principal.sql` → `seed.sql`
+3. Execute na ordem: `script.sql` → `seed.sql`
 
 ---
 
