@@ -45,7 +45,7 @@ CREATE TABLE users (
     email               VARCHAR(150) NOT NULL UNIQUE,
     password_hash       VARCHAR(255) NOT NULL,
     phone               VARCHAR(25),
-    cpf                 VARCHAR(20),
+    cpf                 VARCHAR(20) UNIQUE,
     status              user_status_enum NOT NULL DEFAULT 'active',
     created_at          TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at          TIMESTAMP,
