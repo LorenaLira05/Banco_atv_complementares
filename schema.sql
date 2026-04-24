@@ -413,3 +413,22 @@ CREATE TRIGGER trg_prevent_editing_closed
 
 ALTER TABLE course_coordinators 
 ADD CONSTRAINT uq_course_one_coordinator UNIQUE (course_id);
+
+-- 2FA: colunas na tabela users
+ALTER TABLE users 
+ADD COLUMN two_factor_code VARCHAR(255),
+ADD COLUMN two_factor_expires_at TIMESTAMP,
+ADD COLUMN two_factor_attempts INT DEFAULT 0;
+
+-- 2FA: tabela de dispositivos confiáveis
+CREATE TABLE trusted_devices (
+    id SERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    device_token VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_trusted_devices_user
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_trusted_devices_user ON trusted_devices(user_id);
