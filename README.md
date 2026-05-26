@@ -10,7 +10,7 @@ Este repositório contém os scripts SQL do banco de dados do sistema de gestão
 - [pgAdmin](https://www.pgadmin.org/) 
 ---
 
-## 🚀 Como configurar o banco do zero
+##  Como configurar o banco do zero
 
 ### 1. Crie o banco de dados
 
@@ -107,7 +107,7 @@ DB_PASS=sua_senha
 
 ---
 
-## ❓ Problemas comuns
+##  Problemas comuns
 
 **Erro: `role "postgres" does not exist`**
 Troque `postgres` pelo seu usuário do PostgreSQL local.
