@@ -432,3 +432,172 @@ CREATE TABLE trusted_devices (
 );
 
 CREATE INDEX idx_trusted_devices_user ON trusted_devices(user_id);
+
+-- Adicional para data science
+
+CREATE TYPE nivel_alerta_enum AS ENUM (
+    'baixo',
+    'medio',
+    'alto',
+    'info'
+);
+
+CREATE TYPE perfil_destino_enum AS ENUM (
+    'aluno',
+    'coordenador',
+    'superadmin',
+    'geral'
+);
+
+CREATE TYPE prioridade_enum AS ENUM (
+    'baixa',
+    'media',
+    'alta'
+);
+
+CREATE TYPE nivel_risco_enum AS ENUM (
+    'baixo',
+    'medio',
+    'alto'
+);
+
+CREATE TYPE status_execucao_enum AS ENUM (
+    'em_andamento',
+    'sucesso',
+    'falha',
+    'parcial'
+);
+
+-- Insights automáticos gerados pelos scripts Python para os dashboards
+
+CREATE TABLE insights (
+    id                  BIGSERIAL PRIMARY KEY,
+    perfil_destino      perfil_destino_enum NOT NULL,
+    referencia_tipo     VARCHAR(50)         NOT NULL,
+    referencia_id       BIGINT,
+    tipo_insight        VARCHAR(80)         NOT NULL,
+    titulo              VARCHAR(200)        NOT NULL,
+    descricao           TEXT                NOT NULL,
+    nivel_alerta        nivel_alerta_enum   NOT NULL DEFAULT 'info',
+    valor_numerico      NUMERIC(10, 2),
+    data_geracao        TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_insights_perfil
+    ON insights(perfil_destino);
+
+CREATE INDEX idx_insights_referencia
+    ON insights(referencia_tipo, referencia_id);
+
+CREATE INDEX idx_insights_nivel_alerta
+    ON insights(nivel_alerta);
+
+CREATE INDEX idx_insights_data_geracao
+    ON insights(data_geracao DESC);
+
+-- Recomendações baseadas em regras de negócio por perfil de usuário
+
+CREATE TABLE recomendacoes (
+    id                  BIGSERIAL PRIMARY KEY,
+    perfil_destino      perfil_destino_enum NOT NULL,
+    referencia_id       BIGINT              NOT NULL,
+    nome_regra          VARCHAR(100)        NOT NULL,
+    titulo              VARCHAR(200)        NOT NULL,
+    recomendacao        TEXT                NOT NULL,
+    motivo              TEXT                NOT NULL,
+    prioridade          prioridade_enum     NOT NULL DEFAULT 'media',
+    data_geracao        TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_recomendacoes_perfil
+    ON recomendacoes(perfil_destino);
+
+CREATE INDEX idx_recomendacoes_referencia
+    ON recomendacoes(referencia_id);
+
+CREATE INDEX idx_recomendacoes_prioridade
+    ON recomendacoes(prioridade);
+
+CREATE INDEX idx_recomendacoes_data
+    ON recomendacoes(data_geracao DESC);
+
+-- Histórico de classificação de risco calculado por aluno e curso
+
+CREATE TABLE classificacao_risco (
+    id                      BIGSERIAL PRIMARY KEY,
+    aluno_id                BIGINT             NOT NULL,
+    curso_id                BIGINT             NOT NULL,
+    percentual_conclusao    NUMERIC(5, 2)      NOT NULL,
+    submissoes_pendentes    INTEGER            NOT NULL DEFAULT 0,
+    submissoes_rejeitadas   INTEGER            NOT NULL DEFAULT 0,
+    dias_sem_submeter       INTEGER            NOT NULL DEFAULT 0,
+    horas_aprovadas         NUMERIC(8, 2)      NOT NULL DEFAULT 0,
+    horas_restantes         NUMERIC(8, 2)      NOT NULL DEFAULT 0,
+    nivel_risco             nivel_risco_enum   NOT NULL,
+    justificativa           TEXT               NOT NULL,
+    data_calculo            TIMESTAMP          NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_risco_aluno
+        FOREIGN KEY (aluno_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_risco_curso
+        FOREIGN KEY (curso_id)
+        REFERENCES courses(id)
+        ON DELETE CASCADE
+);
+
+CREATE INDEX idx_risco_aluno
+    ON classificacao_risco(aluno_id);
+
+CREATE INDEX idx_risco_curso
+    ON classificacao_risco(curso_id);
+
+CREATE INDEX idx_risco_nivel
+    ON classificacao_risco(nivel_risco);
+
+CREATE INDEX idx_risco_data
+    ON classificacao_risco(data_calculo DESC);
+
+CREATE OR REPLACE VIEW vw_risco_atual AS
+SELECT DISTINCT ON (aluno_id, curso_id)
+    id,
+    aluno_id,
+    curso_id,
+    percentual_conclusao,
+    submissoes_pendentes,
+    submissoes_rejeitadas,
+    dias_sem_submeter,
+    horas_aprovadas,
+    horas_restantes,
+    nivel_risco,
+    justificativa,
+    data_calculo
+FROM classificacao_risco
+ORDER BY
+    aluno_id,
+    curso_id,
+    data_calculo DESC;
+
+-- Log de cada execução dos scripts Python da pipeline
+
+CREATE TABLE pipeline_execucoes (
+    id                              BIGSERIAL PRIMARY KEY,
+    nome_pipeline                   VARCHAR(100)         NOT NULL,
+    status_execucao                 status_execucao_enum NOT NULL DEFAULT 'em_andamento',
+    inicio_execucao                 TIMESTAMP            NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fim_execucao                    TIMESTAMP,
+    quantidade_registros_lidos      INTEGER DEFAULT 0,
+    quantidade_registros_gravados   INTEGER DEFAULT 0,
+    mensagem                        TEXT
+);
+
+CREATE INDEX idx_pipeline_nome
+    ON pipeline_execucoes(nome_pipeline);
+
+CREATE INDEX idx_pipeline_status
+    ON pipeline_execucoes(status_execucao);
+
+CREATE INDEX idx_pipeline_inicio
+    ON pipeline_execucoes(inicio_execucao DESC);
