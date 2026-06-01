@@ -220,8 +220,9 @@ SELECT
     uc.course_id,
     c.name AS course_name,
     COUNT(s.id) AS total_submissoes,
+    -- Conta tudo que não está aprovado nem reprovado (Lógica idêntica à listagem)
     COUNT(s.id)
-        FILTER (WHERE s.status = 'submitted') AS pendentes,
+        FILTER (WHERE s.status NOT IN ('approved', 'rejected')) AS pendentes,
     COUNT(s.id)
         FILTER (WHERE s.status = 'approved') AS aprovadas,
     COUNT(s.id)
@@ -238,15 +239,8 @@ SELECT
 FROM user_courses uc
 JOIN courses c
     ON c.id = uc.course_id
-JOIN user_roles ur
-    ON ur.user_id = uc.user_id
-JOIN roles r
-    ON r.id = ur.role_id
 LEFT JOIN submissions s
     ON s.user_course_id = uc.id
-WHERE
-    r.name = 'student'
-    AND uc.is_active = true
 GROUP BY
     uc.course_id,
     c.name;
