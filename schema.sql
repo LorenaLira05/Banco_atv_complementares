@@ -603,3 +603,7 @@ CREATE INDEX idx_pipeline_inicio
     ON pipeline_execucoes(inicio_execucao DESC);
 
 ALTER TABLE insights ADD CONSTRAINT unique_tipo_id UNIQUE (referencia_tipo, referencia_id);
+
+ALTER TABLE user_courses ADD COLUMN periodo integer;
+
+ALTER TABLE submission_files ADD COLUMN ocr_dados jsonb;
